@@ -16,6 +16,7 @@ mongoose.Promise = global.Promise;
 const users = [
   {
     username: 'user1',
+    slack_id: '000001',
     current_bets: [],
     past_bets: [],
     history: {
@@ -26,6 +27,7 @@ const users = [
   },
   {
     username: 'user2',
+    slack_id: '000002',
     current_bets: [],
     past_bets: [],
     history: {
@@ -36,6 +38,7 @@ const users = [
   },
   {
     username: 'user3',
+    slack_id: '000003',
     current_bets: [],
     past_bets: [],
     history: {

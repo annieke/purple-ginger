@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema({
   username: { type: String, required: true },
+  slack_id: { type: String, required: true },
   current_bets: [
     {
       bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
