@@ -109,7 +109,6 @@ controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
     bot.startConversation(message, (err, convo) => {
-
       /* Creating a new bet flow */
       convo.addQuestion('What are you betting on?', [
         {
@@ -125,7 +124,7 @@ controller.on(
       ], {}, 'new_bet');
 
       convo.addQuestion('When does this expire?', [
-        //parse -- moment.js
+        // parse -- moment.js
         {
           ephemeral: true,
           default: true,
@@ -140,7 +139,7 @@ controller.on(
       /* Joining a bet flow */
       convo.addQuestion('Which bet would you like to join? Please select available bet with the corresponding number. \n\n\ 1. 2. 3. 4.', [
         {
-          //parse number lol
+          // parse number lol
           ephemeral: true,
           pattern: '1',
           callback: (res, c) => {
@@ -158,7 +157,7 @@ controller.on(
           callback: (res, c) => {
             // select the left side
             convo.say('Left');
-            convo.gotoThread('amount_to_bet')
+            convo.gotoThread('amount_to_bet');
           },
         },
         {
@@ -166,13 +165,13 @@ controller.on(
           callback: (res, c) => {
             // select the right side
             convo.say('Right');
-            convo.gotoThread('amount_to_bet')
+            convo.gotoThread('amount_to_bet');
           },
         },
       ], {}, 'select_side');
 
 
-      //questions common to both sides
+      // questions common to both sides
       convo.addQuestion('How much would you like to bet?', [
         {
           ephemeral: true,
@@ -180,7 +179,7 @@ controller.on(
           callback: (res, c) => {
             // set amount
             convo.say('Thanks for the money');
-            convo.gotoThread('nonprofit_choice')
+            convo.gotoThread('nonprofit_choice');
           },
         },
       ], {}, 'amount_to_bet');
@@ -206,7 +205,7 @@ controller.on(
             pattern: 'newBet',
             callback: (reply) => {
               convo.say('yay');
-              convo.gotoThread('new_bet')
+              convo.gotoThread('new_bet');
               // create a new bet
             },
           },
