@@ -72,9 +72,10 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
 
 const firstMessage = (user) => {
   const greeting = user ? `Hello, <@${user}>!` : 'Hello!';
+  const text = `${greeting} What would you like to do?`;
   return [
     {
-      text: greeting,
+      text,
       fallback: 'Your action did not work:(',
       callback_id: 'choose_action',
       color: '#EBD1FE',
@@ -124,15 +125,6 @@ controller.on(
           },
         ],
       );
-    });
-    bot.api.users.info({ user: message.user }, (err, res) => {
-      if (res) {
-        bot.reply(message, firstMessage(res));
-      } else {
-        bot.reply(message, firstMessage);
-      }
-      //post request
-
     });
   },
 );
