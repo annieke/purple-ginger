@@ -70,13 +70,41 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
   });
 });
 
+const firstMessage = (res) => {
+  return {
+    text: `Hello, ${res.user.real_name}! What would you like to do?`,
+    attachments: [
+      {
+        fallback: 'Your action did not work:(',
+        callback_id: 'choose_action',
+        color: '#3AA3E3',
+        attachement_type: 'default',
+        actions: [
+          {
+            name: 'newBet',
+            text: 'Start a new bet',
+            type: 'button',
+            value: 'newBet',
+          },
+          {
+            name: 'viewBets',
+            text: 'View current bets',
+            type: 'button',
+            value: 'viewBets',
+          },
+        ],
+      },
+    ],
+  };
+};
+
 // example hello response
 controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
     bot.api.users.info({ user: message.user }, (err, res) => {
       if (res) {
-        bot.reply(message, `Hello, ${res.user.name}!`);
+        bot.reply(message, firstMessage(res));
       } else {
         bot.reply(message, 'Hello there!');
       }
