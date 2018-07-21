@@ -51,7 +51,7 @@ const getBetById = (id) => {
 const addLeftSideUser = (id, data) => {
   getBetById(id)
     .then((bet) => {
-      const newLeftSideUser = { user: data.id, money: data.money };
+      const newLeftSideUser = { user: data.id, money: data.money, charity: data.charity };
       bet.left_side_users = [...bet.left_side_name, newLeftSideUser];
       bet.save((err, res) => {
         if (err) return err;
@@ -64,7 +64,7 @@ const addLeftSideUser = (id, data) => {
 const addRightSideUser = (id, data) => {
   getBetById(id)
     .then((bet) => {
-      const newRightSideUser = { user: data.id, money: data.money };
+      const newRightSideUser = { user: data.id, money: data.money, charity: data.charity };
       bet.right_side_users = [...bet.right_side_users, newRightSideUser];
       bet.save((err, res) => {
         if (err) return err;

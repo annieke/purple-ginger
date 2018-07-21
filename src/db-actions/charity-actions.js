@@ -5,6 +5,7 @@ const createCharity = (data) => {
     name: data.name,
     money: 0,
     users: [],
+    paypal: data.email,
   };
   const newCharity = new Charity(charityData);
 

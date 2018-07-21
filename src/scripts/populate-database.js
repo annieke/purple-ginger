@@ -78,11 +78,13 @@ const charities = [
     name: 'American Red Cross',
     money: 0,
     users: [],
+    paypal: 'testing@testing.com',
   },
   {
     name: 'Make a Wish',
     money: 0,
     users: [],
+    paypal: 'testing@testing.com',
   },
 ];
 
@@ -112,6 +114,7 @@ const createCharitiesPromises = charities.map((charity) => {
     name: charity.name,
     money: charity.money,
     users: charity.users,
+    paypal: charity.paypal,
   }).save();
 });
 

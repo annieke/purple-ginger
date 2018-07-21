@@ -45,7 +45,7 @@ const getUserByName = (username) => {
 const addCurrentBet = (id, data) => {
   getUserById(id)
     .then((user) => {
-      const newBet = { bet: data.id, money: data.money };
+      const newBet = { bet: data.id, money: data.money, charity: data.charity };
       user.current_bets = [...user.current_bets, newBet];
 
       user.save((err, res) => {

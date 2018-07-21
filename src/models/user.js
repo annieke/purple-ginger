@@ -8,12 +8,14 @@ const userSchema = new Schema({
     {
       bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
       money: Number,
+      charity: { type: Schema.Types.ObjectId, ref: 'Charity' },
     },
   ],
   past_bets: [
     {
       bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
       money: Number,
+      charity: { type: Schema.Types.ObjectId, ref: 'Charity' },
     },
   ],
   history: {
