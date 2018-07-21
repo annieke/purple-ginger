@@ -4,7 +4,7 @@ const createBet = (data) => {
   const betData = {
     name: data.name,
     admin: data.admin,
-    result_image: data.image,
+    chart: data.image,
     left_side_users: [],
     right_side_users: [],
     left_side_name: data.left_side_name,
