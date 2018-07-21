@@ -10,9 +10,9 @@ const userSchema = new Schema({
       money: Number,
     },
   ],
-  past_bests: [
+  past_bets: [
     {
-      bet: { type: Schema.Types.ObejctId, ref: 'Bet' },
+      bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
       money: Number,
     },
   ],
