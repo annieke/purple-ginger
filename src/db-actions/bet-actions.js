@@ -116,6 +116,20 @@ const updateUser = (id, data) => {
     });
 };
 
+/* UPDATING BET */
+const endBet = (id) => {
+  getBetById(id)
+    .then((bet) => {
+      bet.current = false;
+
+      bet.save((err, res) => {
+        if (err) return err;
+
+        return res;
+      });
+    });
+};
+
 module.exports = {
   createBet,
   getBetsByAdmin,
@@ -125,4 +139,5 @@ module.exports = {
   addRightSideUser,
   removeUser,
   updateUser,
+  endBet,
 };
