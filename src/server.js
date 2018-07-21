@@ -280,7 +280,7 @@ const startPayPal = (id, winningSide) => {
   Bet.getBetById(id)
     .then((bet) => {
       let team;
-      if (winningSide === bet.left_side_name) {
+      if (winningSide !== bet.left_side_name) {
         team = bet.left_side_users;
         handleTeam(team);
       } else {
@@ -344,7 +344,7 @@ const handleTeam = (team) => {
           reply.attachments[0].title_link = links['approval_url'].href;
           // create DM
           bot.say({
-            text: 'Test',
+            text: `There's some good news and some bad news. The bad news is you lost your money. But the good news is you get to give it to charity! \n\n Here is the PayPal link to give to the selected charity: ${links['approval_url'].href}`,
             channel: user.slack_id,
           });
         } else {
