@@ -9,8 +9,29 @@ import * as db from './db';
 
 dotenv.config({ silent: true });
 
+const controller = botkit.slackbot({
+  debug: true,
+  clientId: process.env.SLACK_CLIENT_ID,
+  clientSecret: process.env.SLACK_CLIENT_SECRET,
+  scopes: ['bot'],
+  redirectUri: 'https://purple-ginger.herokuapp.com/',
+});
+
+// initialize slackbot
+const slackbot = controller
+  .spawn({
+    token: process.env.SLACK_BOT_TOKEN,
+    // this grabs the slack token we exported earlier
+  })
+  .startRTM((err) => {
+    // start the real time message client
+    if (err) {
+      throw new Error(err);
+    }
+  });
+
 // initialize
-const app = express();
+const app = express(slackbot);
 
 // enable/disable cross origin resource sharing if necessary
 app.use(cors());
@@ -38,46 +59,26 @@ app.get('/', (req, res) => {
 
 // START THE SERVER
 // =============================================================================
-// const port = process.env.PORT || 9090;
-// app.listen(port);
-//
-// console.log(`listening on: ${port}`);
+const port = process.env.PORT || 9090;
+app.listen(port);
+
+console.log(`listening on: ${port}`);
 
 // botkit controller
-const controller = botkit.slackbot({
-  debug: false,
-  clientId: process.env.SLACK_CLIENT_ID,
-  clientSecret: process.env.SLACK_CLIENT_SECRET,
-  scopes: ['bot'],
-  redirectUri: 'https://purple-ginger.herokuapp.com/',
-});
 
-// initialize slackbot
-const slackbot = controller
-  .spawn({
-    token: process.env.SLACK_BOT_TOKEN,
-    // this grabs the slack token we exported earlier
-  })
-  .startRTM((err) => {
-    // start the real time message client
-    if (err) {
-      throw new Error(err);
-    }
-  });
-
-// prepare webhook
-// for now we won't use this but feel free to look up slack webhooks
-controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
-  controller.createWebhookEndpoints(webserver, slackbot, () => {
-    if (err) {
-      throw new Error(err);
-    }
-  });
-  controller.createOauthEndpoints(webserver);
-});
+// // prepare webhook
+// // for now we won't use this but feel free to look up slack webhooks
+// controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
+//   controller.createWebhookEndpoints(webserver, slackbot, () => {
+//     if (err) {
+//       throw new Error(err);
+//     }
+//   });
+//   controller.createOauthEndpoints(webserver);
+// });
 
 const firstMessage = (user) => {
-  const greeting = user ? `Hello, <@${user}>!` : 'Hello!';
+  const greeting = user ? `Hello, <@${user}>! (Annie)` : 'Hello!';
   const text = `${greeting} What would you like to do?`;
   return [
     {
@@ -127,7 +128,7 @@ controller.on(
   },
 );
 
-controller.on('interactive_message_callback', (bot, message) => {
+controller.hears('interactive_message', (bot, message) => {
   const callbackId = message.callback_id;
   console.log('button clicked??');
   console.log(message);
@@ -148,5 +149,15 @@ controller.on('interactive_message_callback', (bot, message) => {
 controller.storage.teams.all((err, teams) => {
   if (err) {
     throw new Error(err);
+  }
+});
+
+app.post('/', (req, res) => {
+  const payload = JSON.parse(req.body.payload);
+  res.send('got a post');
+  console.log('got something on receiver');
+
+  if (payload.callback_id === 'choose_action') {
+    console.log('got something');
   }
 });
