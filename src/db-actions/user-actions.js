@@ -87,18 +87,21 @@ const addPastBet = (id, betId) => {
     });
 };
 
-// const updateUser = (data) => {
-//   return new Promise((resolve, reject) => {
-//     User.update(
-//       { username: data.username },
-//       { $set: { startDate: data.startDate, endDate: data.endDate } }
-//     )
-//       .exec((err, res) => {
-//         if (err) reject(err)
-//         resolve(`Successfully updated the term ${data.name}`)
-//       })
-//   })
-// }
+const updateCurrentBet = (id, data) => {
+  User.findById(id)
+    .then((user) => {
+      user.current_bets.forEach((bet) => {
+        if (bet.bet === data.id) {
+          bet.money = data.money;
+        }
+      });
+      user.save((err, res) => {
+        if (err) return err;
+
+        return res;
+      });
+    });
+};
 
 module.exports = {
   getAllUsers,
@@ -107,4 +110,5 @@ module.exports = {
   createUser,
   addCurrentBet,
   addPastBet,
+  updateCurrentBet,
 };
