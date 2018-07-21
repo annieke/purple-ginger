@@ -51,7 +51,7 @@ const getBetById = (id) => {
 const addLeftSideUser = (id, data) => {
   getBetById(id)
     .then((bet) => {
-      const newLeftSideUser = { id: data.id, money: data.money };
+      const newLeftSideUser = { user: data.id, money: data.money };
       bet.left_side_users = Object.assign(bet.left_side_users, newLeftSideUser);
       bet.save((err, res) => {
         if (err) return err;
@@ -64,7 +64,7 @@ const addLeftSideUser = (id, data) => {
 const addRightSideUser = (id, data) => {
   getBetById(id)
     .then((bet) => {
-      const newRightSideUser = { id: data.id, money: data.money };
+      const newRightSideUser = { user: data.id, money: data.money };
       bet.right_side_users = Object.assign(bet.right_side_users, newRightSideUser);
       bet.save((err, res) => {
         if (err) return err;
@@ -74,14 +74,14 @@ const addRightSideUser = (id, data) => {
     });
 };
 
-const removeUser = (id, userid) => {
+const removeUser = (id, userId) => {
   getBetById(id)
     .then((bet) => {
       bet.left_side_users = bet.left_side_users.filter((item) => {
-        return item.id !== userid;
+        return item.user !== userId;
       });
       bet.right_side_users = bet.right_side_users.filter((item) => {
-        return item.id !== userid;
+        return item.user !== userId;
       });
       bet.save((err, res) => {
         if (err) return err;
@@ -96,14 +96,14 @@ const updateUser = (id, data) => {
     .then((bet) => {
       let foundUser = false;
       bet.left_side_users.forEach((user) => {
-        if (user.id === data.id) {
+        if (user.user === data.id) {
           user.money = data.money;
           foundUser = true;
         }
       });
       if (!foundUser) {
         bet.right_side_users.forEach((user) => {
-          if (user.id === data.id) {
+          if (user.user === data.id) {
             user.money = data.money;
           }
         });

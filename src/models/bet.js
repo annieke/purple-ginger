@@ -8,13 +8,13 @@ const betSchema = new Schema({
   admin: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   left_side_users: [
     {
-      id: { type: Schema.Types.ObjectId, ref: 'User' },
+      user: { type: Schema.Types.ObjectId, ref: 'User' },
       money: Number,
     },
   ],
   right_side_users: [
     {
-      id: { type: Schema.Types.ObjectId, ref: 'User' },
+      user: { type: Schema.Types.ObjectId, ref: 'User' },
       money: Number,
     },
   ],
