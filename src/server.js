@@ -112,15 +112,7 @@ controller.on(
           {
             pattern: 'newBet',
             callback: (reply) => {
-              convo.say('Initializing new bet');
-              convo.next();
-            },
-          },
-          {
-            pattern: 'viewBets',
-            callback: (reply) => {
-              convo.say('Viewing bets');
-              convo.next();
+              convo.say('yay');
             },
           },
         ],
@@ -128,3 +120,21 @@ controller.on(
     });
   },
 );
+
+controller.on('interactive_message_callback', (bot, message) => {
+  const callbackId = message.callback_id;
+  console.log('button clicked??');
+  console.log(message);
+  console.log(bot);
+
+  // Example use of Select case method for evaluating the callback ID
+  // Callback ID 123 for weather bot webcam
+  switch (callbackId) {
+    case 'choose_action':
+      bot.replyInteractive(message, 'New bet works!');
+      break;
+    // Add more cases here to handle for multiple buttons
+    default:
+      bot.reply(message, 'The callback ID has not been defined');
+  }
+});
