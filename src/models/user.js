@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -7,12 +8,14 @@ const userSchema = new Schema({
     {
       bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
       money: Number,
+      charity: { type: Schema.Types.ObjectId, ref: 'Charity' },
     },
   ],
-  past_bests: [
+  past_bets: [
     {
-      bet: { type: Schema.Types.ObejctId, ref: 'Bet' },
+      bet: { type: Schema.Types.ObjectId, ref: 'Bet' },
       money: Number,
+      charity: { type: Schema.Types.ObjectId, ref: 'Charity' },
     },
   ],
   history: {

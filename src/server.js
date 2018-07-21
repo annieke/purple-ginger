@@ -5,6 +5,7 @@ import path from 'path';
 import morgan from 'morgan';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
+import * as db from './db';
 
 dotenv.config({ silent: true });
 
