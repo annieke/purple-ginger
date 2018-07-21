@@ -73,7 +73,7 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
       throw new Error(err);
     }
   });
-  controller.createOauthEndpoints(app);
+  controller.createOauthEndpoints(webserver);
 });
 
 const firstMessage = (user) => {
