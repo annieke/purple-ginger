@@ -110,6 +110,18 @@ const firstMessage = (user) => {
   ];
 };
 
+controller.on(
+  ['direct_message', 'direct_mention', 'mention'],
+  (bot, message) => {
+    bot.startConversation(message, (err, convo) => {
+      convo.ask({
+        ephemeral: true,
+        attachments: firstMessage(message.user),
+      });
+    });
+  },
+);
+
 const closingMessage = (user) => {
   const greeting = user ? `Hello, <@${user}>! Jasmine` : 'Hello!';
   const text = `${greeting} Which bidding pool do you want to close?`;
@@ -190,7 +202,7 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
   bot.startConversation(message, (err, convo) => {
     console.log('started convo');
     /* Creating a new bet flow */
-    convo.addQuestion(
+    convo.ask(
       'What are you betting on?',
       [
         {
@@ -291,27 +303,6 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
       ],
       {},
       'nonprofit_choice',
-    );
-
-    convo.ask(
-      {
-        ephemeral: true,
-        attachments: firstMessage(message.user),
-      },
-      [
-        {
-          pattern: 'newBet',
-          callback: (reply) => {
-            convo.gotoThread('new_bet');
-          },
-        },
-        {
-          pattern: 'joinBet',
-          callback: (reply) => {
-            convo.gotoThread('join_bet');
-          },
-        },
-      ],
     );
   });
 });
