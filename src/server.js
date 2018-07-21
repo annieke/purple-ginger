@@ -113,7 +113,7 @@ controller.on(
           {
             pattern: 'newBet',
             callback: (reply) => {
-              convo.say('yay');
+              convo.say('yay'); 
             },
           },
         ],
