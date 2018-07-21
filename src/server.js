@@ -180,30 +180,13 @@ controller.on(
               // create new bet
               // set admin of bet to this user
               convo.say('Created new bet');
-              convo.gotoThread('set_time');
+              convo.gotoThread('select_side');
+              //for and against are set as default
             },
           },
         ],
         {},
         'new_bet',
-      );
-
-      convo.addQuestion(
-        'When does this expire?',
-        [
-          // parse -- moment.js
-          {
-            ephemeral: true,
-            default: true,
-            callback: (res, c) => {
-              // set time
-              convo.say('Cool.......');
-              convo.gotoThread('amount_to_bet');
-            },
-          },
-        ],
-        {},
-        'set_time',
       );
 
       /* Joining a bet flow */
@@ -225,23 +208,23 @@ controller.on(
         'join_bet',
       );
 
+      // questions common to both sides
       convo.addQuestion(
         'Which side would you like to bet on?',
         [
           {
             ephemeral: true,
-            pattern: 'left',
+            pattern: 'for',
             callback: (res, c) => {
-              // select the left side
-              convo.say('Left');
+              // save bid
               convo.gotoThread('amount_to_bet');
             },
           },
           {
-            pattern: 'right',
+            ephemeral: true,
+            pattern: 'against',
             callback: (res, c) => {
-              // select the right side
-              convo.say('Right');
+              //save bid
               convo.gotoThread('amount_to_bet');
             },
           },
@@ -250,7 +233,6 @@ controller.on(
         'select_side',
       );
 
-      // questions common to both sides
       convo.addQuestion(
         'How much would you like to bet?',
         [
@@ -275,7 +257,7 @@ controller.on(
             ephemeral: true,
             default: true,
             callback: (res, c) => {
-              // set amount
+              // set nonprofit
               convo.say('Thanks for choosing!');
             },
           },
@@ -293,17 +275,13 @@ controller.on(
           {
             pattern: 'newBet',
             callback: (reply) => {
-              convo.say('yay');
               convo.gotoThread('new_bet');
-              // create a new bet
             },
           },
           {
             pattern: 'joinBet',
             callback: (reply) => {
-              convo.say('yay');
               convo.gotoThread('join_bet');
-              // list all bets
             },
           },
         ],
@@ -351,30 +329,12 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
             // create new bet
             // set admin of bet to this user
             convo.say('Created new bet');
-            convo.gotoThread('set_time');
-          },
-        },
-      ],
-      {},
-      'new_bet',
-    );
-
-    convo.addQuestion(
-      'When does this expire?',
-      [
-        // parse -- moment.js
-        {
-          ephemeral: true,
-          default: true,
-          callback: (res, c) => {
-            // set time
-            convo.say('Cool.......');
             convo.gotoThread('amount_to_bet');
           },
         },
       ],
       {},
-      'set_time',
+      'new_bet',
     );
 
     /* Joining a bet flow */
