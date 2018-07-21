@@ -71,8 +71,9 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
 });
 
 const firstMessage = (res) => {
+  const greeting = res ? `Hello, ${res.user.real_name}!` : 'Hello!';
   return {
-    text: `Hello, ${res.user.real_name}! What would you like to do?`,
+    text: `${greeting} What would you like to do?`,
     attachments: [
       {
         fallback: 'Your action did not work:(',
@@ -106,7 +107,7 @@ controller.on(
       if (res) {
         bot.reply(message, firstMessage(res));
       } else {
-        bot.reply(message, 'Hello there!');
+        bot.reply(message, firstMessage);
       }
     });
   },
