@@ -105,7 +105,6 @@ const firstMessage = (user) => {
   ];
 };
 
-// example hello response
 controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
@@ -114,6 +113,7 @@ controller.on(
       /* Creating a new bet flow */
       convo.addQuestion('What are you betting on?', [
         {
+          ephemeral: true,
           default: true,
           callback: (res, c) => {
             // create new bet
@@ -125,7 +125,9 @@ controller.on(
       ], {}, 'new_bet');
 
       convo.addQuestion('When does this expire?', [
+        //parse -- moment.js
         {
+          ephemeral: true,
           default: true,
           callback: (res, c) => {
             // set time
@@ -138,6 +140,8 @@ controller.on(
       /* Joining a bet flow */
       convo.addQuestion('Which bet would you like to join? Please select available bet with the corresponding number. \n\n\ 1. 2. 3. 4.', [
         {
+          //parse number lol
+          ephemeral: true,
           pattern: '1',
           callback: (res, c) => {
             // select the bet by name
@@ -147,8 +151,9 @@ controller.on(
         },
       ], {}, 'join_bet');
 
-      convo.addQuestion('Which sit would you like to be on?', [
+      convo.addQuestion('Which side would you like to bet on?', [
         {
+          ephemeral: true,
           pattern: 'left',
           callback: (res, c) => {
             // select the left side
@@ -166,16 +171,30 @@ controller.on(
         },
       ], {}, 'select_side');
 
+
+      //questions common to both sides
       convo.addQuestion('How much would you like to bet?', [
         {
+          ephemeral: true,
           default: true,
           callback: (res, c) => {
             // set amount
             convo.say('Thanks for the money');
-            convo.next();
+            convo.gotoThread('nonprofit_choice')
           },
         },
       ], {}, 'amount_to_bet');
+
+      convo.addQuestion('Which nonprofit?', [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set amount
+            convo.say('Thanks for choosing!');
+          },
+        },
+      ], {}, 'nonprofit_choice');
 
       convo.ask(
         {
