@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import mongodb from 'mongodb';
 import User from './../models/user';
 import Bet from './../models/bet';
 import Charity from './../models/charity';
