@@ -46,6 +46,10 @@ app.get('/', (req, res) => {
 // botkit controller
 const controller = botkit.slackbot({
   debug: false,
+  clientId: process.env.SLACK_CLIENT_ID,
+  clientSecret: process.env.SLACK_CLIENT_SECRET,
+  scopes: ['bot'],
+  redirectUri: 'https://purple-ginger.herokuapp.com/',
 });
 
 // initialize slackbot
@@ -69,6 +73,7 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
       throw new Error(err);
     }
   });
+  controller.createOauthEndpoints(app);
 });
 
 const firstMessage = (user) => {
