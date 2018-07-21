@@ -1,4 +1,5 @@
 import User from './../models/user';
+import Charity from './../models/charity';
 
 // update user
 
@@ -45,14 +46,17 @@ const getUserByName = (username) => {
 const addCurrentBet = (id, data) => {
   getUserById(id)
     .then((user) => {
-      const newBet = { bet: data.id, money: data.money, charity: data.charity };
-      user.current_bets = [...user.current_bets, newBet];
+      Charity.getCharityByName(data.charity)
+        .then((charity) => {
+          const newBet = { bet: data.id, money: data.money, charity: charity.id };
+          user.current_bets = [...user.current_bets, newBet];
 
-      user.save((err, res) => {
-        if (err) return err;
+          user.save((err, res) => {
+            if (err) return err;
 
-        return res;
-      });
+            return res;
+          });
+        });
     });
 };
 

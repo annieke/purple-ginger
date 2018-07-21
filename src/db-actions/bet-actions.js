@@ -47,6 +47,15 @@ const getBetById = (id) => {
     });
 };
 
+const getBets = () => {
+  Bet.find({})
+    .exec((err, bets) => {
+      if (err) return err;
+
+      return bets;
+    });
+};
+
 /* HANDLING USERS */
 const addLeftSideUser = (id, data) => {
   getBetById(id)
@@ -135,6 +144,7 @@ module.exports = {
   getBetsByAdmin,
   getBetByName,
   getBetById,
+  getBets,
   addLeftSideUser,
   addRightSideUser,
   removeUser,
