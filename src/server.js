@@ -144,3 +144,9 @@ controller.on('interactive_message_callback', (bot, message) => {
       bot.reply(message, 'The callback ID has not been defined');
   }
 });
+
+controller.storage.teams.all((err, teams) => {
+  if (err) {
+    throw new Error(err);
+  }
+});
