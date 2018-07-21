@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 
 const betSchema = new Schema({
   name: { type: String, require: true },
-  admin: { type: Schema.Types.ObjectId, ref: 'User' },
+  admin: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   left_side_users: [
     {
       id: { type: Schema.Types.ObjectId, ref: 'User' },

@@ -12,7 +12,6 @@ const createUser = (data) => {
   newUser.save((err, res) => {
     if (err) return err;
 
-    console.log(`POST new user: ${res.username}`);
     return res;
   });
 };
