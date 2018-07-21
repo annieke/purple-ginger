@@ -137,7 +137,7 @@ const closingMessage = (user) => {
   ];
 };
 
-controller.hears('Close bid', (bot, message) => {
+controller.hears('Close bid', 'ambient', (bot, message) => {
   bot.startConversation(message, (err, convo) => {
 
     convo.addMessage('Congratulations!', [
@@ -176,161 +176,12 @@ controller.hears('Close bid', (bot, message) => {
   });
 });
 
-controller.on(
-  ['direct_message', 'direct_mention', 'mention'],
-  (bot, message) => {
-    bot.startConversation(message, (err, convo) => {
-      /* Creating a new bet flow */
-      convo.addQuestion(
-        'What are you betting on?',
-        [
-          {
-            ephemeral: true,
-            default: true,
-            callback: (res, c) => {
-              // create new bet
-              // set admin of bet to this user
-              convo.say('Created new bet');
-              convo.gotoThread('select_side');
-              //for and against are set as default
-            },
-          },
-        ],
-        {},
-        'new_bet',
-      );
-
-      /* Joining a bet flow */
-      convo.addQuestion(
-        'Which bet would you like to join? Please select available bet with the corresponding number. \n\n 1. 2. 3. 4.',
-        [
-          {
-            // parse number lol
-            ephemeral: true,
-            pattern: '1',
-            callback: (res, c) => {
-              // select the bet by name
-              convo.say('Sweet!');
-              convo.gotoThread('select_side');
-            },
-          },
-        ],
-        {},
-        'join_bet',
-      );
-
-      // questions common to both sides
-      convo.addQuestion(
-        'Which side would you like to bet on?',
-        [
-          {
-            ephemeral: true,
-            pattern: 'for',
-            callback: (res, c) => {
-              // save bid
-              convo.gotoThread('amount_to_bet');
-            },
-          },
-          {
-            ephemeral: true,
-            pattern: 'against',
-            callback: (res, c) => {
-              //save bid
-              convo.gotoThread('amount_to_bet');
-            },
-          },
-        ],
-        {},
-        'select_side',
-      );
-
-      convo.addQuestion(
-        'How much would you like to bet?',
-        [
-          {
-            ephemeral: true,
-            default: true,
-            callback: (res, c) => {
-              // set amount
-              convo.say('Thanks for the money');
-              convo.gotoThread('nonprofit_choice');
-            },
-          },
-        ],
-        {},
-        'amount_to_bet',
-      );
-
-      convo.addQuestion(
-        'Which nonprofit?',
-        [
-          {
-            ephemeral: true,
-            default: true,
-            callback: (res, c) => {
-              // set nonprofit
-              convo.say('Thanks for choosing!');
-            },
-          },
-        ],
-        {},
-        'nonprofit_choice',
-      );
-
-      convo.ask(
-        {
-          ephemeral: true,
-          attachments: firstMessage(message.user),
-        },
-        [
-          {
-            pattern: 'newBet',
-            callback: (reply) => {
-              convo.gotoThread('new_bet');
-            },
-          },
-          {
-            pattern: 'joinBet',
-            callback: (reply) => {
-              convo.gotoThread('join_bet');
-            },
-          },
-        ],
-      );
-    });
-  },
-);
-
-// controller.hears('interactive_message', (bot, message) => {
-//   const callbackId = message.callback_id;
-//   console.log('button clicked??');
-//   console.log(message);
-//   console.log(bot);
-//
-//   // Example use of Select case method for evaluating the callback ID
-//   // Callback ID 123 for weather bot webcam
-//   switch (callbackId) {
-//     case 'choose_action':
-//       bot.replyInteractive(message, 'New bet works!');
-//       break;
-//     // Add more cases here to handle for multiple buttons
-//     default:
-//       bot.reply(message, 'The callback ID has not been defined');
-//   }
-// });
-
-// controller.storage.teams.all((err, teams) => {
-//   if (err) {
-//     throw new Error(err);
-//   }
-// });
-
 controller.hears(':thumbsup:', 'ambient', (bot, message) => {
   console.log('heard thumbs up');
   bot.startConversation(message, (err, convo) => {
     console.log('started convo');
     /* Creating a new bet flow */
-    convo.ask(
+    convo.addQuestion(
       'What are you betting on?',
       [
         {
@@ -340,7 +191,8 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
             // create new bet
             // set admin of bet to this user
             convo.say('Created new bet');
-            convo.gotoThread('amount_to_bet');
+            convo.gotoThread('select_side');
+            //for and against are set as default
           },
         },
       ],
@@ -367,23 +219,23 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
       'join_bet',
     );
 
+    // questions common to both sides
     convo.addQuestion(
       'Which side would you like to bet on?',
       [
         {
           ephemeral: true,
-          pattern: 'left',
+          pattern: 'for',
           callback: (res, c) => {
-            // select the left side
-            convo.say('Left');
+            // save bid
             convo.gotoThread('amount_to_bet');
           },
         },
         {
-          pattern: 'right',
+          ephemeral: true,
+          pattern: 'against',
           callback: (res, c) => {
-            // select the right side
-            convo.say('Right');
+            //save bid
             convo.gotoThread('amount_to_bet');
           },
         },
@@ -392,7 +244,6 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
       'select_side',
     );
 
-    // questions common to both sides
     convo.addQuestion(
       'How much would you like to bet?',
       [
@@ -417,13 +268,34 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
           ephemeral: true,
           default: true,
           callback: (res, c) => {
-            // set amount
+            // set nonprofit
             convo.say('Thanks for choosing!');
           },
         },
       ],
       {},
       'nonprofit_choice',
+    );
+
+    convo.ask(
+      {
+        ephemeral: true,
+        attachments: firstMessage(message.user),
+      },
+      [
+        {
+          pattern: 'newBet',
+          callback: (reply) => {
+            convo.gotoThread('new_bet');
+          },
+        },
+        {
+          pattern: 'joinBet',
+          callback: (reply) => {
+            convo.gotoThread('join_bet');
+          },
+        },
+      ],
     );
   });
 });
@@ -446,11 +318,6 @@ app.post('/', (req, res) => {
     }
   }
 });
-
-
-
-
-
 
 /* PayPal */
 
