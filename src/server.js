@@ -104,6 +104,74 @@ controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
     bot.startConversation(message, (err, convo) => {
+
+      /* Creating a new bet flow */
+      convo.addQuestion('What are you betting on?', [
+        {
+          default: true,
+          callback: (res, c) => {
+            // create new bet
+            // set admin of bet to this user
+            convo.say('Created new bet');
+            convo.gotoThread('set_time');
+          },
+        },
+      ], {}, 'new_bet');
+
+      convo.addQuestion('When does this expire?', [
+        {
+          default: true,
+          callback: (res, c) => {
+            // set time
+            convo.say('Cool.......');
+            convo.next();
+          },
+        },
+      ], {}, 'set_time');
+
+      /* Joining a bet flow */
+      convo.addQuestion('Which bet would you like to join? Please select available bet with the corresponding number. \n\n\ 1. 2. 3. 4.', [
+        {
+          pattern: '1',
+          callback: (res, c) => {
+            // select the bet by name
+            convo.say('Sweet!');
+            convo.gotoThread('select_side');
+          },
+        },
+      ], {}, 'join_bet');
+
+      convo.addQuestion('Which sit would you like to be on?', [
+        {
+          pattern: 'left',
+          callback: (res, c) => {
+            // select the left side
+            convo.say('Left');
+            convo.next();
+          },
+        },
+        {
+          pattern: 'right',
+          callback: (res, c) => {
+            // select the right side
+            convo.say('Right');
+            convo.next();
+          },
+        },
+      ], {}, 'select_side');
+
+      convo.addQuestion('How much would you like to bet?', [
+        {
+          default: true,
+          callback: (res, c) => {
+            // set amount
+            convo.say('Thanks for the money');
+            convo.next();
+          },
+        },
+      ], {}, 'amount_to_bet');
+
+
       convo.ask(
         {
           ephemeral: true,
@@ -113,7 +181,16 @@ controller.on(
           {
             pattern: 'newBet',
             callback: (reply) => {
-              convo.say('yay'); 
+              convo.say('yay');
+              // create a new bet
+            },
+          },
+          {
+            pattern: 'joinBet',
+            callback: (reply) => {
+              convo.say('yay');
+              convo.gotoThread('join_bet');
+              // list all bets
             },
           },
         ],
