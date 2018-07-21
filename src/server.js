@@ -124,7 +124,7 @@ controller.on(
           callback: (res, c) => {
             // set time
             convo.say('Cool.......');
-            convo.next();
+            convo.gotoThread('amount_to_bet');
           },
         },
       ], {}, 'set_time');
@@ -147,7 +147,7 @@ controller.on(
           callback: (res, c) => {
             // select the left side
             convo.say('Left');
-            convo.next();
+            convo.gotoThread('amount_to_bet')
           },
         },
         {
@@ -155,7 +155,7 @@ controller.on(
           callback: (res, c) => {
             // select the right side
             convo.say('Right');
-            convo.next();
+            convo.gotoThread('amount_to_bet')
           },
         },
       ], {}, 'select_side');
@@ -171,7 +171,6 @@ controller.on(
         },
       ], {}, 'amount_to_bet');
 
-
       convo.ask(
         {
           ephemeral: true,
@@ -182,6 +181,7 @@ controller.on(
             pattern: 'newBet',
             callback: (reply) => {
               convo.say('yay');
+              convo.gotoThread('new_bet')
               // create a new bet
             },
           },
