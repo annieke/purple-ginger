@@ -5,11 +5,7 @@ const { Schema } = mongoose;
 const charitySchema = new Schema({
   name: { type: String, require: true },
   money: Number,
-  users: [
-    {
-      id: { type: Schema.Types.ObjectId, ref: 'User' },
-    },
-  ],
+  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 const charity = mongoose.model('Charity', charitySchema);

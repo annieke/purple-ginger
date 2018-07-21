@@ -13,6 +13,7 @@ const createUser = (data) => {
   });
 };
 
+/* HANDLING USERS */
 const getAllUsers = () => {
   User.find({})
     .exec((err, res) => {
@@ -40,11 +41,12 @@ const getUserByName = (username) => {
     });
 };
 
+/* HANDLING BETS */
 const addCurrentBet = (id, data) => {
-  User.findById(id)
+  getUserById(id)
     .then((user) => {
       const newBet = { bet: data.id, money: data.money };
-      user.current_bets = Object.assign(user.current_bets, newBet);
+      user.current_bets = [...user.current_bets, newBet];
 
       user.save((err, res) => {
         if (err) return err;
@@ -55,7 +57,7 @@ const addCurrentBet = (id, data) => {
 };
 
 const removeCurrentBet = (id, betId) => {
-  User.findById(id)
+  getUserById(id)
     .then((user) => {
       user.current_bets = user.current_bets.filter((item) => {
         return item.bet !== betId;
@@ -69,11 +71,11 @@ const removeCurrentBet = (id, betId) => {
 };
 
 const addPastBet = (id, betId) => {
-  User.findById(id)
+  getUserById(id)
     .then((user) => {
       user.current_bets.forEach((bet) => {
         if (bet.bet === betId) {
-          user.past_bets = Object.assign(user.past_bets, bet);
+          user.past_bets = [...user.past_bets, bet];
         }
       });
       removeCurrentBet(id, betId)
@@ -88,7 +90,7 @@ const addPastBet = (id, betId) => {
 };
 
 const updateCurrentBet = (id, data) => {
-  User.findById(id)
+  getUserById(id)
     .then((user) => {
       user.current_bets.forEach((bet) => {
         if (bet.bet === data.id) {
