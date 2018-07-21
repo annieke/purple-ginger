@@ -4,7 +4,7 @@ import Charity from './../models/charity';
 // update user
 
 const createUser = (data) => {
-  const userData = { username: data.username };
+  const userData = { username: data.username, slack_id: data.slack_id };
   const newUser = new User(userData);
 
   newUser.save((err, res) => {

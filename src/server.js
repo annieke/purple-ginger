@@ -1,13 +1,16 @@
 import express from 'express';
+import paypal from 'paypal-rest-sdk';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import morgan from 'morgan';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
+import Bet from './models/bet';
 import * as db from './db';
 
 dotenv.config({ silent: true });
+const redirect = 'http://localhost:3001/slack/receive';
 
 const controller = botkit.slackbot({
   debug: false,
@@ -15,6 +18,14 @@ const controller = botkit.slackbot({
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   scopes: ['bot'],
   redirectUri: 'https://purple-ginger.herokuapp.com/',
+});
+
+// PayPal application credentials and payment redirect
+// Configure PayPal environment
+paypal.configure({
+  mode: 'sandbox', //sandbox or live
+  client_id: process.env.PP_CLIENT_ID,
+  client_secret: process.env.PP_CLIENT_SECRET,
 });
 
 // initialize slackbot
@@ -417,3 +428,90 @@ app.post('/', (req, res) => {
     }
   }
 });
+
+
+
+
+
+
+/* PayPal */
+
+const startPayPal = (id, winningSide) => {
+
+  Bet.getBetById(id)
+    .then((bet) => {
+      let team;
+      if (winningSide !== bet.left_side_name) {
+        team = bet.left_side_users;
+        handleTeam(team);
+      } else {
+        team = bet.right_side_users;
+        handleTeam(team);
+      }
+    })
+}
+
+const handleTeam = (team) => {
+
+  const reply = {
+    attachments: [{
+      fallback: 'Payment initiation infromation failed to load',
+      color: '#36a64f',
+      pretext: 'Click the link below to initiate payment',
+      title: 'Make payment to COMPANY',
+      footer: 'PayPal Payment Bot',
+      footer_icon: 'https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2016-08-17/70252203425_a7e48673014756aad9a5_96.jpg',
+      ts: 'test ts'
+    }]
+  };
+
+  team.forEach((user) => {
+    // Build PayPal payment request
+    let payReq = JSON.stringify({
+      intent: 'sale',
+      redirect_urls: {
+        return_url: redirect + '/process',
+        cancel_url: redirect + '/cancel'
+      },
+      payer: {
+        payment_method: 'paypal'
+      },
+      transactions: [{
+        description: 'This is the payment transaction description.',
+        amount: {
+          total: user.money,
+          currency: 'USD'
+        },
+        payee: {
+          email: Charity.findById(user.charity)
+        }
+      }]
+    })
+
+    paypal.payment.create(payReq, function (error, payment) {
+      if (error) {
+        console.error(JSON.stringify(error));
+      } else {
+        // Capture HATEOAS links
+        var links = {};
+        payment.links.forEach(function (linkObj) {
+          links[linkObj.rel] = {
+            href: linkObj.href,
+            method: linkObj.method
+          };
+        })
+        // If redirect URL exists, insert link into bot message and display
+        if (links.hasOwnProperty('approval_url')) {
+          reply.attachments[0].title_link = links['approval_url'].href;
+          // create DM
+          bot.say({
+            text: `There's some good news and some bad news. The bad news is you lost your money. But the good news is you get to give it to charity! \n\n Here is the PayPal link to give to the selected charity: ${links['approval_url'].href}`,
+            channel: user.slack_id,
+          });
+        } else {
+          console.error('no redirect URI present');
+        }
+      }
+    })
+  })
+}
