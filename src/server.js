@@ -76,9 +76,11 @@ controller.on(
   (bot, message) => {
     bot.api.users.info({ user: message.user }, (err, res) => {
       if (res) {
-        bot.reply(message, `Hello, ${res.user.name}!`);
+        bot.reply(message, `Hello ${res.user.name} ! I\'m here to make betting simple and fun.
+        Would you like to start a new bet or join an existing bet?`);
       } else {
-        bot.reply(message, 'Hello there!');
+        bot.reply(message, `Hello ! I\'m here to make betting simple and fun.
+        Would you like to start a new bet or join an existing bet?`);
       }
     });
   },
