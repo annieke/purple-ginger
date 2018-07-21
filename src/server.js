@@ -71,8 +71,7 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
 });
 
 // example hello response
-controller.hears(
-  ['hello', 'hi', 'howdy'],
+controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
     bot.api.users.info({ user: message.user }, (err, res) => {
