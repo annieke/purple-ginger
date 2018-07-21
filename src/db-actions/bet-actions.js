@@ -4,11 +4,11 @@ const createBet = (data) => {
   const betData = {
     name: data.name,
     admin: data.admin,
+    result_image: data.image,
     left_side_users: [],
     right_side_users: [],
     left_side_name: data.left_side_name,
     right_side_name: data.right_side_name,
-    current: true,
   };
   const newBet = new Bet(betData);
 
