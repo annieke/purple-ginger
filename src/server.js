@@ -6,7 +6,7 @@ import path from 'path';
 import morgan from 'morgan';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
-import Bet form './models/bet';
+import Bet from './models/bet';
 import * as db from './db';
 
 dotenv.config({ silent: true });
@@ -294,7 +294,7 @@ const handleTeam = (team) => {
 
   const reply = {
     attachments: [{
-      fallback: 'Payment initiation information failed to load',
+      fallback: 'Payment initiation infromation failed to load',
       color: '#36a64f',
       pretext: 'Click the link below to initiate payment',
       title: 'Make payment to COMPANY',
