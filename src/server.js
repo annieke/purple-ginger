@@ -70,45 +70,71 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
   });
 });
 
-const firstMessage = (res) => {
-  const greeting = res ? `Hello, ${res.user.real_name}!` : 'Hello!';
-  return {
-    text: `${greeting} What would you like to do?`,
-    attachments: [
-      {
-        fallback: 'Your action did not work:(',
-        callback_id: 'choose_action',
-        color: '#3AA3E3',
-        attachement_type: 'default',
-        actions: [
-          {
-            name: 'newBet',
-            text: 'Start a new bet',
-            type: 'button',
-            value: 'newBet',
-          },
-          {
-            name: 'viewBets',
-            text: 'View current bets',
-            type: 'button',
-            value: 'viewBets',
-          },
-        ],
-      },
-    ],
-  };
+const firstMessage = (user) => {
+  const greeting = user ? `Hello, <@${user}>!` : 'Hello!';
+  const text = `${greeting} What would you like to do?`;
+  return [
+    {
+      text,
+      fallback: 'Your action did not work:(',
+      callback_id: 'choose_action',
+      color: '#EBD1FE',
+      attachement_type: 'default',
+      actions: [
+        {
+          name: 'newBet',
+          text: 'Start a new bet',
+          type: 'button',
+          value: 'newBet',
+        },
+        {
+          name: 'viewBets',
+          text: 'View current bets',
+          type: 'button',
+          value: 'viewBets',
+        },
+      ],
+    },
+  ];
 };
 
 // example hello response
 controller.on(
   ['direct_message', 'direct_mention', 'mention'],
   (bot, message) => {
-    bot.api.users.info({ user: message.user }, (err, res) => {
-      if (res) {
-        bot.reply(message, firstMessage(res));
-      } else {
-        bot.reply(message, firstMessage);
-      }
+    bot.startConversation(message, (err, convo) => {
+      convo.ask(
+        {
+          ephemeral: true,
+          attachments: firstMessage(message.user),
+        },
+        [
+          {
+            pattern: 'newBet',
+            callback: (reply) => {
+              convo.say('yay');
+            },
+          },
+        ],
+      );
     });
   },
 );
+
+controller.on('interactive_message_callback', (bot, message) => {
+  const callbackId = message.callback_id;
+  console.log('button clicked??');
+  console.log(message);
+  console.log(bot);
+
+  // Example use of Select case method for evaluating the callback ID
+  // Callback ID 123 for weather bot webcam
+  switch (callbackId) {
+    case 'choose_action':
+      bot.replyInteractive(message, 'New bet works!');
+      break;
+    // Add more cases here to handle for multiple buttons
+    default:
+      bot.reply(message, 'The callback ID has not been defined');
+  }
+});
