@@ -6,6 +6,9 @@ import morgan from 'morgan';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
 import * as db from './db';
+const betactions = require('./db-actions/bet-actions')
+const useractions = require('./db-actions/user-actions')
+const charityactions = require('./db-actions/charity-actions')
 
 dotenv.config({ silent: true });
 
@@ -64,19 +67,6 @@ app.listen(port);
 
 console.log(`listening on: ${port}`);
 
-// botkit controller
-
-// // prepare webhook
-// // for now we won't use this but feel free to look up slack webhooks
-// controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
-//   controller.createWebhookEndpoints(webserver, slackbot, () => {
-//     if (err) {
-//       throw new Error(err);
-//     }
-//   });
-//   controller.createOauthEndpoints(webserver);
-// });
-
 const firstMessage = (user) => {
   const greeting = user
     ? `Hello, <@${user}>! (Annie's current branch)`
@@ -88,7 +78,7 @@ const firstMessage = (user) => {
       fallback: 'Your action did not work:(',
       callback_id: 'choose_action',
       color: '#EBD1FE',
-      attachement_type: 'default',
+      attachment_type: 'default',
       actions: [
         {
           name: 'newBet',
@@ -106,6 +96,74 @@ const firstMessage = (user) => {
     },
   ];
 };
+
+const closingMessage = (user) => {
+  const greeting = user ? `Hello, <@${user}>! Jasmine` : 'Hello!';
+  const text = `${greeting} Which bidding pool do you want to close?`;
+  return [
+    {
+      text,
+      fallback: 'Your action did not work:(',
+      callback_id: 'choose_action',
+      color: '#EBD1FE',
+      attachment_type: 'default',
+      //Ijemma: to do - populate buttons w/ bid types - needs to be persisted/passed around to each conversation
+      actions: [
+        {
+          name: 'Close bet 1',
+          text: 'Close INSERT BID 1',
+          type: 'button',
+          value: 'bid1',
+        },
+        {
+          name: 'Close bet 2',
+          text: 'Close INSERT BID 2',
+          type: 'button',
+          value: 'bid2',
+        },
+      ],
+    },
+  ];
+};
+
+controller.hears('Close bid', (bot, message) => {
+  bot.startConversation(message, (err, convo) => {
+
+    convo.addMessage('Congratulations!', [
+      {
+        ephemeral: true,
+        default: true,
+        callback: (res, c) => {
+          //TO DO: DISPLAY GRAPHIC
+        },
+      },
+    ], {}, 'display_award_graphic');
+
+    convo.addQuestion('Which side won?', [
+      {
+        ephemeral: true,
+        default: true,
+        callback: (res, c) => {
+          // calculate winning side
+          convo.say('Woot! They won.');
+          convo.gotoThread('display_award_graphic');
+        },
+      },
+    ], {}, 'select_winning_side');
+
+    convo.ask(
+      {
+        ephemeral: true,
+        attachments: closingMessage(message.user),
+        callback: (res, c) => {
+          // set amount
+          convo.say('Thanks for selecting the bid');
+          convo.gotoThread('select_winning_side')
+        },
+      },
+    );
+  });
+});
 
 controller.on(
   ['direct_message', 'direct_mention', 'mention'],
