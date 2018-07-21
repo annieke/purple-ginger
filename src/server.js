@@ -10,7 +10,7 @@ import * as db from './db';
 dotenv.config({ silent: true });
 
 const controller = botkit.slackbot({
-  debug: true,
+  debug: false,
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   scopes: ['bot'],
@@ -78,7 +78,9 @@ console.log(`listening on: ${port}`);
 // });
 
 const firstMessage = (user) => {
-  const greeting = user ? `Hello, <@${user}>! (Annie)` : 'Hello!';
+  const greeting = user
+    ? `Hello, <@${user}>! (Annie's current branch)`
+    : 'Hello!';
   const text = `${greeting} What would you like to do?`;
   return [
     {
@@ -110,90 +112,119 @@ controller.on(
   (bot, message) => {
     bot.startConversation(message, (err, convo) => {
       /* Creating a new bet flow */
-      convo.addQuestion('What are you betting on?', [
-        {
-          ephemeral: true,
-          default: true,
-          callback: (res, c) => {
-            // create new bet
-            // set admin of bet to this user
-            convo.say('Created new bet');
-            convo.gotoThread('set_time');
+      convo.addQuestion(
+        'What are you betting on?',
+        [
+          {
+            ephemeral: true,
+            default: true,
+            callback: (res, c) => {
+              // create new bet
+              // set admin of bet to this user
+              convo.say('Created new bet');
+              convo.gotoThread('set_time');
+            },
           },
-        },
-      ], {}, 'new_bet');
+        ],
+        {},
+        'new_bet',
+      );
 
-      convo.addQuestion('When does this expire?', [
-        // parse -- moment.js
-        {
-          ephemeral: true,
-          default: true,
-          callback: (res, c) => {
-            // set time
-            convo.say('Cool.......');
-            convo.gotoThread('amount_to_bet');
+      convo.addQuestion(
+        'When does this expire?',
+        [
+          // parse -- moment.js
+          {
+            ephemeral: true,
+            default: true,
+            callback: (res, c) => {
+              // set time
+              convo.say('Cool.......');
+              convo.gotoThread('amount_to_bet');
+            },
           },
-        },
-      ], {}, 'set_time');
+        ],
+        {},
+        'set_time',
+      );
 
       /* Joining a bet flow */
-      convo.addQuestion('Which bet would you like to join? Please select available bet with the corresponding number. \n\n\ 1. 2. 3. 4.', [
-        {
-          // parse number lol
-          ephemeral: true,
-          pattern: '1',
-          callback: (res, c) => {
-            // select the bet by name
-            convo.say('Sweet!');
-            convo.gotoThread('select_side');
+      convo.addQuestion(
+        'Which bet would you like to join? Please select available bet with the corresponding number. \n\n 1. 2. 3. 4.',
+        [
+          {
+            // parse number lol
+            ephemeral: true,
+            pattern: '1',
+            callback: (res, c) => {
+              // select the bet by name
+              convo.say('Sweet!');
+              convo.gotoThread('select_side');
+            },
           },
-        },
-      ], {}, 'join_bet');
+        ],
+        {},
+        'join_bet',
+      );
 
-      convo.addQuestion('Which side would you like to bet on?', [
-        {
-          ephemeral: true,
-          pattern: 'left',
-          callback: (res, c) => {
-            // select the left side
-            convo.say('Left');
-            convo.gotoThread('amount_to_bet');
+      convo.addQuestion(
+        'Which side would you like to bet on?',
+        [
+          {
+            ephemeral: true,
+            pattern: 'left',
+            callback: (res, c) => {
+              // select the left side
+              convo.say('Left');
+              convo.gotoThread('amount_to_bet');
+            },
           },
-        },
-        {
-          pattern: 'right',
-          callback: (res, c) => {
-            // select the right side
-            convo.say('Right');
-            convo.gotoThread('amount_to_bet');
+          {
+            pattern: 'right',
+            callback: (res, c) => {
+              // select the right side
+              convo.say('Right');
+              convo.gotoThread('amount_to_bet');
+            },
           },
-        },
-      ], {}, 'select_side');
-
+        ],
+        {},
+        'select_side',
+      );
 
       // questions common to both sides
-      convo.addQuestion('How much would you like to bet?', [
-        {
-          ephemeral: true,
-          default: true,
-          callback: (res, c) => {
-            // set amount
-            convo.say('Thanks for the money');
-            convo.gotoThread('nonprofit_choice');
+      convo.addQuestion(
+        'How much would you like to bet?',
+        [
+          {
+            ephemeral: true,
+            default: true,
+            callback: (res, c) => {
+              // set amount
+              convo.say('Thanks for the money');
+              convo.gotoThread('nonprofit_choice');
+            },
           },
-        },
-      ], {}, 'amount_to_bet');
+        ],
+        {},
+        'amount_to_bet',
+      );
 
-      convo.addQuestion('Which nonprofit?', [
-        {
-          ephemeral: true,
-          default: true,
-          callback: (res, c) => {
-            // set amount
-            convo.say('Thanks for choosing!');
+      convo.addQuestion(
+        'Which nonprofit?',
+        [
+          {
+            ephemeral: true,
+            default: true,
+            callback: (res, c) => {
+              // set amount
+              convo.say('Thanks for choosing!');
+            },
           },
-        },
-      ], {}, 'nonprofit_choice');
+        ],
+        {},
+        'nonprofit_choice',
+      );
 
       convo.ask(
         {
@@ -223,36 +254,166 @@ controller.on(
   },
 );
 
-controller.hears('interactive_message', (bot, message) => {
-  const callbackId = message.callback_id;
-  console.log('button clicked??');
-  console.log(message);
-  console.log(bot);
+// controller.hears('interactive_message', (bot, message) => {
+//   const callbackId = message.callback_id;
+//   console.log('button clicked??');
+//   console.log(message);
+//   console.log(bot);
+//
+//   // Example use of Select case method for evaluating the callback ID
+//   // Callback ID 123 for weather bot webcam
+//   switch (callbackId) {
+//     case 'choose_action':
+//       bot.replyInteractive(message, 'New bet works!');
+//       break;
+//     // Add more cases here to handle for multiple buttons
+//     default:
+//       bot.reply(message, 'The callback ID has not been defined');
+//   }
+// });
 
-  // Example use of Select case method for evaluating the callback ID
-  // Callback ID 123 for weather bot webcam
-  switch (callbackId) {
-    case 'choose_action':
-      bot.replyInteractive(message, 'New bet works!');
-      break;
-    // Add more cases here to handle for multiple buttons
-    default:
-      bot.reply(message, 'The callback ID has not been defined');
-  }
-});
+// controller.storage.teams.all((err, teams) => {
+//   if (err) {
+//     throw new Error(err);
+//   }
+// });
 
-controller.storage.teams.all((err, teams) => {
-  if (err) {
-    throw new Error(err);
-  }
+controller.hears(':thumbsup:', 'ambient', (bot, message) => {
+  console.log('heard thumbs up');
+  bot.startConversation(message, (err, convo) => {
+    console.log('started convo');
+    /* Creating a new bet flow */
+    convo.ask(
+      'What are you betting on?',
+      [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // create new bet
+            // set admin of bet to this user
+            convo.say('Created new bet');
+            convo.gotoThread('set_time');
+          },
+        },
+      ],
+      {},
+      'new_bet',
+    );
+
+    convo.addQuestion(
+      'When does this expire?',
+      [
+        // parse -- moment.js
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set time
+            convo.say('Cool.......');
+            convo.gotoThread('amount_to_bet');
+          },
+        },
+      ],
+      {},
+      'set_time',
+    );
+
+    /* Joining a bet flow */
+    convo.addQuestion(
+      'Which bet would you like to join? Please select available bet with the corresponding number. \n\n 1. 2. 3. 4.',
+      [
+        {
+          // parse number lol
+          ephemeral: true,
+          pattern: '1',
+          callback: (res, c) => {
+            // select the bet by name
+            convo.say('Sweet!');
+            convo.gotoThread('select_side');
+          },
+        },
+      ],
+      {},
+      'join_bet',
+    );
+
+    convo.addQuestion(
+      'Which side would you like to bet on?',
+      [
+        {
+          ephemeral: true,
+          pattern: 'left',
+          callback: (res, c) => {
+            // select the left side
+            convo.say('Left');
+            convo.gotoThread('amount_to_bet');
+          },
+        },
+        {
+          pattern: 'right',
+          callback: (res, c) => {
+            // select the right side
+            convo.say('Right');
+            convo.gotoThread('amount_to_bet');
+          },
+        },
+      ],
+      {},
+      'select_side',
+    );
+
+    // questions common to both sides
+    convo.addQuestion(
+      'How much would you like to bet?',
+      [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set amount
+            convo.say('Thanks for the money');
+            convo.gotoThread('nonprofit_choice');
+          },
+        },
+      ],
+      {},
+      'amount_to_bet',
+    );
+
+    convo.addQuestion(
+      'Which nonprofit?',
+      [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set amount
+            convo.say('Thanks for choosing!');
+          },
+        },
+      ],
+      {},
+      'nonprofit_choice',
+    );
+  });
 });
 
 app.post('/', (req, res) => {
   const payload = JSON.parse(req.body.payload);
-  res.send('got a post');
   console.log('got something on receiver');
 
   if (payload.callback_id === 'choose_action') {
     console.log('got something');
+    switch (payload.actions[0].name) {
+      case 'newBet':
+        console.log('newbet pressed');
+        res.send('Got it! Send me a :thumbsup: to continue.');
+        break;
+      case 'viewBets':
+        break;
+      default:
+        break;
+    }
   }
 });
