@@ -7,106 +7,97 @@ const createUser = (data) => {
   const userData = { username: data.username, slack_id: data.slack_id };
   const newUser = new User(userData);
 
-  newUser.save((err, res) => {
+  return newUser.save();
+};
+
+/* HANDLING USERS */
+const getAllUsers = () => {
+  User.find({}).exec((err, res) => {
     if (err) return err;
 
     return res;
   });
 };
 
-/* HANDLING USERS */
-const getAllUsers = () => {
-  User.find({})
-    .exec((err, res) => {
-      if (err) return err;
+const getUserById = (id) => {
+  User.findById(id).exec((err, res) => {
+    if (err) return err;
 
-      return res;
-    });
+    return res;
+  });
 };
 
-const getUserById = (id) => {
-  User.findById(id)
-    .exec((err, res) => {
-      if (err) return err;
-
-      return res;
-    });
+const getUserBySlack = (slack) => {
+  return User.find({ slack_id }).exec();
 };
 
 const getUserByName = (username) => {
-  User.find({ username })
-    .exec((err, res) => {
-      if (err) return err;
+  User.find({ username }).exec((err, res) => {
+    if (err) return err;
 
-      return res;
-    });
+    return res;
+  });
 };
 
 /* HANDLING BETS */
 const addCurrentBet = (id, data) => {
-  getUserById(id)
-    .then((user) => {
-      Charity.getCharityByName(data.charity)
-        .then((charity) => {
-          const newBet = { bet: data.id, money: data.money, charity: charity.id };
-          user.current_bets = [...user.current_bets, newBet];
+  getUserById(id).then((user) => {
+    Charity.getCharityByName(data.charity).then((charity) => {
+      const newBet = { bet: data.id, money: data.money, charity: charity.id };
+      user.current_bets = [...user.current_bets, newBet];
 
-          user.save((err, res) => {
-            if (err) return err;
+      user.save((err, res) => {
+        if (err) return err;
 
-            return res;
-          });
-        });
+        return res;
+      });
     });
+  });
 };
 
 const removeCurrentBet = (id, betId) => {
-  getUserById(id)
-    .then((user) => {
-      user.current_bets = user.current_bets.filter((item) => {
-        return item.bet !== betId;
-      });
-      user.save((err, res) => {
-        if (err) return err;
-
-        return res;
-      });
+  getUserById(id).then((user) => {
+    user.current_bets = user.current_bets.filter((item) => {
+      return item.bet !== betId;
     });
+    user.save((err, res) => {
+      if (err) return err;
+
+      return res;
+    });
+  });
 };
 
 const addPastBet = (id, betId) => {
-  getUserById(id)
-    .then((user) => {
-      user.current_bets.forEach((bet) => {
-        if (bet.bet === betId) {
-          user.past_bets = [...user.past_bets, bet];
-        }
-      });
-      removeCurrentBet(id, betId)
-        .then((res1) => {
-          user.save((err, res) => {
-            if (err) return err;
-
-            return res;
-          });
-        });
+  getUserById(id).then((user) => {
+    user.current_bets.forEach((bet) => {
+      if (bet.bet === betId) {
+        user.past_bets = [...user.past_bets, bet];
+      }
     });
-};
-
-const updateCurrentBet = (id, data) => {
-  getUserById(id)
-    .then((user) => {
-      user.current_bets.forEach((bet) => {
-        if (bet.bet === data.id) {
-          bet.money = data.money;
-        }
-      });
+    removeCurrentBet(id, betId).then((res1) => {
       user.save((err, res) => {
         if (err) return err;
 
         return res;
       });
     });
+  });
+};
+
+const updateCurrentBet = (id, data) => {
+  getUserById(id).then((user) => {
+    user.current_bets.forEach((bet) => {
+      if (bet.bet === data.id) {
+        bet.money = data.money;
+      }
+    });
+    user.save((err, res) => {
+      if (err) return err;
+
+      return res;
+    });
+  });
 };
 
 module.exports = {

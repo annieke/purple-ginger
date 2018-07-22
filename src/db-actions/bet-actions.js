@@ -11,135 +11,122 @@ const createBet = (data) => {
     right_side_name: data.right_side_name,
   };
   const newBet = new Bet(betData);
-
-  newBet.save((err, res) => {
-    if (err) return err;
-
-    return res;
-  });
+  return newBet.save();
 };
 
 /* GETTING BETS */
 const getBetsByAdmin = (id) => {
-  Bet.findById(id)
-    .exec((err, bets) => {
-      if (err) return err;
+  Bet.findById(id).exec((err, bets) => {
+    if (err) return err;
 
-      return bets;
-    });
+    return bets;
+  });
 };
 
 const getBetByName = (name) => {
-  Bet.find({ name })
-    .exec((err, bet) => {
-      if (err) return err;
-
-      return bet;
-    });
+  return Bet.find({ name }).exec();
 };
 
 const getBetById = (id) => {
-  Bet.findById(id)
-    .exec((err, bet) => {
-      if (err) return err;
+  Bet.findById(id).exec((err, bet) => {
+    if (err) return err;
 
-      return bet;
-    });
+    return bet;
+  });
 };
 
 const getBets = () => {
-  Bet.find({})
-    .exec((err, bets) => {
-      if (err) return err;
-
-      return bets;
-    });
+  return [
+    'France vs. Croatia',
+    'Ijemma will push 2000 lines of code',
+    'Humanity will fly in 20 years',
+    'We will have tacos for dinner',
+  ];
 };
 
 /* HANDLING USERS */
 const addLeftSideUser = (id, data) => {
-  getBetById(id)
-    .then((bet) => {
-      const newLeftSideUser = { user: data.id, money: data.money, charity: data.charity };
-      bet.left_side_users = [...bet.left_side_name, newLeftSideUser];
-      bet.save((err, res) => {
-        if (err) return err;
-
-        return res;
-      });
-    });
+  getBetById(id).then((bet) => {
+    const newLeftSideUser = {
+      user: data.id,
+      money: data.money,
+      charity: data.charity,
+    };
+    bet.left_side_users = [...bet.left_side_name, newLeftSideUser];
+    return bet.save();
+  });
 };
 
 const addRightSideUser = (id, data) => {
-  getBetById(id)
-    .then((bet) => {
-      const newRightSideUser = { user: data.id, money: data.money, charity: data.charity };
-      bet.right_side_users = [...bet.right_side_users, newRightSideUser];
-      bet.save((err, res) => {
-        if (err) return err;
+  getBetById(id).then((bet) => {
+    const newRightSideUser = {
+      user: data.id,
+      money: data.money,
+      charity: data.charity,
+    };
+    bet.right_side_users = [...bet.right_side_users, newRightSideUser];
+    bet.save((err, res) => {
+      if (err) return err;
 
-        return res;
-      });
+      return res;
     });
+  });
 };
 
 const removeUser = (id, userId) => {
-  getBetById(id)
-    .then((bet) => {
-      bet.left_side_users = bet.left_side_users.filter((item) => {
-        return item.user !== userId;
-      });
-      bet.right_side_users = bet.right_side_users.filter((item) => {
-        return item.user !== userId;
-      });
-      bet.save((err, res) => {
-        if (err) return err;
-
-        return res;
-      });
+  getBetById(id).then((bet) => {
+    bet.left_side_users = bet.left_side_users.filter((item) => {
+      return item.user !== userId;
     });
+    bet.right_side_users = bet.right_side_users.filter((item) => {
+      return item.user !== userId;
+    });
+    bet.save((err, res) => {
+      if (err) return err;
+
+      return res;
+    });
+  });
 };
 
 const updateUser = (id, data) => {
-  getBetById(id)
-    .then((bet) => {
-      let foundUser = false;
-      bet.left_side_users.forEach((user) => {
+  getBetById(id).then((bet) => {
+    let foundUser = false;
+    bet.left_side_users.forEach((user) => {
+      if (user.user === data.id) {
+        user.money = data.money;
+        foundUser = true;
+      }
+    });
+    if (!foundUser) {
+      bet.right_side_users.forEach((user) => {
         if (user.user === data.id) {
           user.money = data.money;
-          foundUser = true;
         }
       });
-      if (!foundUser) {
-        bet.right_side_users.forEach((user) => {
-          if (user.user === data.id) {
-            user.money = data.money;
-          }
-        });
-      }
-      bet.save((err, res) => {
-        if (err) return err;
+    }
+    bet.save((err, res) => {
+      if (err) return err;
 
-        return res;
-      });
+      return res;
     });
+  });
 };
 
 /* UPDATING BET */
 const endBet = (id) => {
-  getBetById(id)
-    .then((bet) => {
-      bet.current = false;
+  getBetById(id).then((bet) => {
+    bet.current = false;
 
-      bet.save((err, res) => {
-        if (err) return err;
+    bet.save((err, res) => {
+      if (err) return err;
 
-        return res;
-      });
+      return res;
     });
+  });
 };
 
-module.exports = {
+export {
   createBet,
   getBetsByAdmin,
   getBetByName,
