@@ -7,12 +7,22 @@ import morgan from 'morgan';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
 import Bet from './models/bet';
-import { createBet } from './db-actions/bet-actions';
+import {
+  getBetById,
+  createBet,
+  getBetByName,
+  addLeftSideUser,
+  addRightSideUser,
+  getBets,
+} from './db-actions/bet-actions';
+import { createUser, getUserBySlack } from './db-actions/user-actions';
 import * as db from './db';
 
 const betactions = require('./db-actions/bet-actions');
 const useractions = require('./db-actions/user-actions');
 const charityactions = require('./db-actions/charity-actions');
+
+let currentJoiningBet;
 
 dotenv.config({ silent: true });
 const redirect = 'http://localhost:3001/slack/receive';
@@ -203,24 +213,30 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
     console.log('started convo');
     /* Creating a new bet flow */
     convo.ask(
-      'What are you betting on?',
+      'Awesome! Let\'s start a new bet :slightly_smiling_face: What are you betting on?',
       [
         {
           ephemeral: true,
           default: true,
           callback: (res, c) => {
             // create new bet
-            createBet({
-              name: res.text,
-              admin: res.user,
-              left_side_name: 'positive',
-              right_side_name: 'negative',
+            createUser({
+              username: 'testing',
+              slack_id: res.user,
+            }).then((res1) => {
+              createBet({
+                name: res.text,
+                admin: res1._id,
+                left_side_name: 'positive',
+                right_side_name: 'negative',
+              }).then((res2) => {
+                bot.reply(
+                  message,
+                  'Cool, I set up that bid for you. Make sure to let people know about the bid. ',
+                );
+                convo.gotoThread('select_side');
+              });
             });
-            console.log('creating new bet');
-            console.log(res);
-            // set admin of bet to this user
-            bot.reply(message, 'Created a new bet for you!');
-            convo.gotoThread('select_side');
           },
         },
       ],
@@ -228,18 +244,103 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
       'new_bet',
     );
 
-    /* Joining a bet flow */
+    // questions common to both sides
     convo.addQuestion(
-      'Which bet would you like to join? Please select available bet with the corresponding number. \n\n 1. 2. 3. 4.',
+      'Now.. you get to bet! Are you \'for\' or \'against\'?',
+      [
+        {
+          ephemeral: true,
+          pattern: 'for',
+          callback: (res, c) => {
+            // save bid
+            getBetById(currentJoiningBet._id).then((bet) => {
+              getUserBySlack(res.user).then((user) => {
+                addLeftSideUser(bet._id, { user: user._id, money: 10 }).then((res1) => {
+                  convo.gotoThread('amount_to_bet');
+                });
+              });
+            });
+          },
+        },
+        {
+          ephemeral: true,
+          pattern: 'against',
+          callback: (res, c) => {
+            // save bid
+            getBetById(currentJoiningBet._id).then((bet) => {
+              getUserBySlack(res.user).then((user) => {
+                addRightSideUser(bet._id, { user: user._id, money: 10 }).then((res1) => {
+                  convo.gotoThread('amount_to_bet');
+                });
+              });
+            });
+          },
+        },
+      ],
+      {},
+      'select_side_joining',
+    );
+
+    convo.addQuestion(
+      'How much would you like to bet? Remember, if you\'re the highest bidder when the pool is closed and your side wins, the whole pool goes to the cause you love!',
+      [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set amount
+            convo.say('Wow! That\'s a lot of money. Thanks!');
+            convo.gotoThread('nonprofit_choice');
+          },
+        },
+      ],
+      {},
+      'amount_to_bet',
+    );
+
+    convo.addQuestion(
+      'Which nonprofit do you want this to go to? ',
+      [
+        {
+          ephemeral: true,
+          default: true,
+          callback: (res, c) => {
+            // set nonprofit
+            convo.say('What a great cause! Thanks for supporting them. :slightly_smiling_face:');
+          },
+        },
+      ],
+      {},
+      'nonprofit_choice',
+    );
+  });
+});
+
+controller.hears(':rainbow:', 'ambient', (bot, message) => {
+  bot.startConversation(message, (err, convo) => {
+    // convo.say(`Here's a list of all current bets!`);
+    /* Joining a bet flow */
+    const betsString = getBets().join('\n');
+    convo.ask(
+      `Which bet would you like to join? Please select available bets.
+
+      ${betsString}`,
       [
         {
           // parse number lol
-          ephemeral: true,
-          pattern: '1',
+          default: true,
           callback: (res, c) => {
-            // select the bet by name
-            convo.say('Sweet!');
-            convo.gotoThread('select_side');
+            const selection = res.text;
+            createUser({
+              username: 'testing',
+              slack_id: res.user,
+            }).then((res) => {
+              getBetByName('france').then((res) => {
+                currentJoiningBet = res;
+              });
+            });
+            convo.say(`Sweet! ${selection}`);
+            convo.gotoThread('select_side_joining');
           },
         },
       ],
@@ -256,7 +357,13 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
           pattern: 'for',
           callback: (res, c) => {
             // save bid
-            convo.gotoThread('amount_to_bet');
+            getBetById(currentJoiningBet._id).then((bet) => {
+              getUserBySlack(res.user).then((user) => {
+                addLeftSideUser(bet._id, { user: user._id, money: 10 }).then((res1) => {
+                  convo.gotoThread('amount_to_bet');
+                });
+              });
+            });
           },
         },
         {
@@ -264,12 +371,18 @@ controller.hears(':thumbsup:', 'ambient', (bot, message) => {
           pattern: 'against',
           callback: (res, c) => {
             // save bid
-            convo.gotoThread('amount_to_bet');
+            getBetById(currentJoiningBet._id).then((bet) => {
+              getUserBySlack(res.user).then((user) => {
+                addRightSideUser(bet._id, { user: user._id, money: 10 }).then((res1) => {
+                  convo.gotoThread('amount_to_bet');
+                });
+              });
+            });
           },
         },
       ],
       {},
-      'select_side',
+      'select_side_joining',
     );
 
     convo.addQuestion(
@@ -319,6 +432,7 @@ app.post('/', (req, res) => {
         res.send('Got it! Send me a :thumbsup: to continue.');
         break;
       case 'viewBets':
+        res.send('Got it! Send me a :rainbow: to continue.');
         break;
       default:
         break;
